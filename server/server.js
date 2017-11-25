@@ -11,6 +11,16 @@ const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
+// GET/questions
+app.get('/questions', (req, res) => {
+    Question.find().then((questions) => {
+        res.send(questions);
+    }, (e) => {
+        res.status(400).send(e);
+    });
+});
+
+// POST/questions
 app.post('/questions', (req, res) => {
     var question = new Question({
         question: req.body
