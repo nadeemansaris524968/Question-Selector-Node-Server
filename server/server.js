@@ -52,6 +52,24 @@ app.post('/questions', (req, res) => {
     });
 });
 
+// DELETE/questions/:id
+app.delete('/questions/:id', (req, res) => {
+    var id = req.params.id;
+
+    if (!ObjectID.isValid(id)) {
+        return res.status(404).send();
+    }
+
+    Question.findByIdAndRemove(id).then((doc) => {
+        if (!doc) {
+            return res.status(404).send();
+        }
+        res.send(doc);
+    }).catch((e) => {
+        res.status(400).send(e);
+    });
+});
+
 app.listen(port, () => {
     console.log(`Started up at port ${port}`);
 });
