@@ -7,6 +7,7 @@ const { ObjectID } = require('mongodb');
 
 var { mongoose } = require('./db/mongoose');
 var { Question } = require('./models/question');
+var { User } = require('./models/user');
 
 var app = express();
 const port = process.env.PORT;
@@ -94,6 +95,18 @@ app.delete('/questions/:id', (req, res) => {
             return res.status(404).send();
         }
         res.send(question);
+    }).catch((e) => {
+        res.status(400).send(e);
+    });
+});
+
+// POST/users
+app.post('/users', (req, res) => {
+    var body = _.pick(req.body, ['email', 'password']);
+    var user = new User(body);
+
+    user.save().then( (user) => {
+        res.send(user);
     }).catch((e) => {
         res.status(400).send(e);
     });
