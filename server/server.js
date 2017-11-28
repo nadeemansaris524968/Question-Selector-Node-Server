@@ -48,7 +48,9 @@ app.get('/questions/:id', (req, res) => {
 // POST/questions
 app.post('/questions', (req, res) => {
     var question = new Question({
-        question: req.body
+        independent: req.body.independent,
+        if_thens: req.body.if_thens,
+        img: req.body.img
     });
 
     question.save().then((doc) => {
@@ -61,13 +63,15 @@ app.post('/questions', (req, res) => {
 // PATCH/questions/:id
 app.patch('/questions/:id', (req, res) => {
     var id = req.params.id;
-    var body = _.pick(req.body, ['_id', 'question', '__v']);
+    var body = _.pick(req.body, ['independent', 'if_thens', 'img']);
 
     if (!ObjectID.isValid(id)) {
         return res.status(404).send();
     }
 
-    Question.findByIdAndUpdate(id, { $set: body }, { new: true }).then((question) => {
+    // console.log("OBJECT FROM POSTMAN ***********" + JSON.stringify(body, undefined, 2));
+
+    Question.findByIdAndUpdate(id, { $set: req.body }, { new: true }).then((question) => {
         if (!question) {
             return res.status(404).send();
         }
