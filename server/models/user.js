@@ -43,7 +43,9 @@ UserSchema.methods.toJSON = function () {
     return _.pick(userObject, ['_id', 'email']);
 }
 
+// Instance methods (toJSON and generateAuthToken)
 UserSchema.methods.generateAuthToken = function () {
+    // user is model instance
     var user = this;
     var access = 'auth';
     var token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
@@ -52,6 +54,28 @@ UserSchema.methods.generateAuthToken = function () {
 
     return user.save().then(() => {
         return token;
+    });
+};
+
+// Static method
+// Find user associated with the token
+UserSchema.statics.findByToken =  function (token) {
+    // User is model itself since 'this' is being called in a static method 
+    var User = this;
+    var decoded;
+
+    try {
+        decoded = jwt.verify(token, 'abc123');
+    } catch (e) {
+        // Not a valid token
+        return Promise.reject();
+    }
+
+    // Token verified, now fetch user by _id and matching tokens in tokens[] of user document
+    return User.findOne({
+        '_id': decoded._id,
+        'tokens.token': token,
+        'tokens.access': 'auth'
     });
 };
 

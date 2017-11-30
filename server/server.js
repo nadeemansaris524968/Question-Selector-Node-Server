@@ -8,15 +8,16 @@ const { ObjectID } = require('mongodb');
 var { mongoose } = require('./db/mongoose');
 var { Question } = require('./models/question');
 var { User } = require('./models/user');
+var { authenticate } = require('./middleware/authenticate');
 
 var app = express();
 const port = process.env.PORT;
 
 app.use(bodyParser.json());
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
+app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
 });
 
 // GET/questions
@@ -105,17 +106,23 @@ app.post('/users', (req, res) => {
     var body = _.pick(req.body, ['email', 'password']);
     var user = new User(body);
 
-    user.save().then( (user) => {
+    user.save().then((user) => {
         return user.generateAuthToken();
     })
-    .then((token) => {
-        // this user is different to what we see above
-        res.header('x-auth', token).send(user);
-    })
-    .catch((e) => {
-        res.status(400).send(e);
-    });
+        .then((token) => {
+            // this user is different to what we see above
+            res.header('x-auth', token).send(user);
+        })
+        .catch((e) => {
+            res.status(400).send(e);
+        });
 });
+
+// Using middleware defined in authenticate.js
+app.get('/users/me', authenticate, (req, res) => {
+    res.send(req.user);
+});
+
 
 app.listen(port, () => {
     console.log(`Started up at port ${port}`);
