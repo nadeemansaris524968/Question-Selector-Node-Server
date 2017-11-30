@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
+const _ = require('lodash');
 
 var UserSchema = new mongoose.Schema({
     email: {
@@ -30,6 +31,17 @@ var UserSchema = new mongoose.Schema({
         }
     }]
 });
+
+// Pick and choose properties from 
+// the mongoose model that gets sent back to the user for eg:
+// not sending the token[] etc.
+UserSchema.methods.toJSON = function () {
+    var user = this; // mongoose variable
+    var userObject = user.toObject(); // Converting mongoose varibale to regular JS object.
+
+    // Sending back only the properties that should be present in the header.
+    return _.pick(userObject, ['_id', 'email']);
+}
 
 UserSchema.methods.generateAuthToken = function () {
     var user = this;
