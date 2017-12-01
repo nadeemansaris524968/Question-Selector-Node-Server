@@ -58,6 +58,20 @@ UserSchema.methods.generateAuthToken = function () {
     });
 };
 
+UserSchema.methods.removeToken = function (token) {
+    var user = this;
+
+    // Using Mongoose $pull update() operator to pull 
+    // object from tokens[] that matches with the token
+    // that got passed in - essentially deleting the token
+    // for 'session'.
+    return user.update({
+        $pull: {
+            tokens: { token }
+        }
+    });
+}
+
 // Static method
 // Find user associated with the token
 UserSchema.statics.findByToken = function (token) {
