@@ -12,6 +12,7 @@ var authenticate = (req, res, next) => {
         
         // Now the next method will get a req with user and token
         req.user = user;
+        req.email = user.email;
         req.token = token;
         next();
     }).catch((e) => {

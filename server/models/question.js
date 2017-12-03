@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 var Question = mongoose.model('Question', {
     independent: [],
     if_thens: [],
-    img: ''
+    img: '',
+    _answeredBy: ''
 });
 
 module.exports = { Question };

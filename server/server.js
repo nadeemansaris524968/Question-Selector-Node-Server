@@ -21,6 +21,7 @@ app.use(function (req, res, next) {
 });
 
 // GET/questions
+// Sends all the questions, no authentication required
 app.get('/questions', (req, res) => {
     Question.find().then((questions) => {
         res.send(questions);
@@ -48,11 +49,13 @@ app.get('/questions/:id', (req, res) => {
 });
 
 // POST/questions
-app.post('/questions', (req, res) => {
+app.post('/questions', authenticate, (req, res) => {
     var question = new Question({
         independent: req.body.independent,
         if_thens: req.body.if_thens,
-        img: req.body.img
+        img: req.body.img,
+        _answeredBy: req.user._id // We are able to extract user prop from req 
+        // because we set it using authenticate.js middleware
     });
 
     question.save().then((doc) => {
@@ -63,35 +66,48 @@ app.post('/questions', (req, res) => {
 });
 
 // PATCH/questions/:id
-app.patch('/questions/:id', (req, res) => {
+app.patch('/questions/:id', authenticate, (req, res) => {
     var id = req.params.id;
     var body = _.pick(req.body, ['independent', 'if_thens', 'img']);
+    body['_answeredBy'] = req.user.email;
 
     if (!ObjectID.isValid(id)) {
         return res.status(404).send();
     }
 
-    // console.log("OBJECT FROM POSTMAN ***********" + JSON.stringify(body, undefined, 2));
+    Question.findByIdAndUpdate(id,
+        {
+            $set: {
+                "img": body.img,
+                "if_thens": body.if_thens,
+                "independent": body.independent,
+                "_answeredBy": body._answeredBy
+            }
+        }, { new: true }).then((question) => {
+            if (!question) {
+                return res.status(404).send();
+            }
 
-    Question.findByIdAndUpdate(id, { $set: req.body }, { new: true }).then((question) => {
-        if (!question) {
-            return res.status(404).send();
-        }
-        res.send(question);
-    }).catch((e) => {
-        res.status(400).send();
-    });
+            res.send(question);
+            console.log('Printing question: ' + JSON.stringify(question, undefined, 2));
+
+        }).catch((e) => {
+            res.status(400).send();
+        });
 });
 
 // DELETE/questions/:id
-app.delete('/questions/:id', (req, res) => {
+app.delete('/questions/:id', authenticate, (req, res) => {
     var id = req.params.id;
 
     if (!ObjectID.isValid(id)) {
         return res.status(404).send();
     }
 
-    Question.findByIdAndRemove(id).then((question) => {
+    Question.findOneAndRemove({
+        _id: id,
+        _answeredBy: req.user._id
+    }).then((question) => {
         if (!question) {
             return res.status(404).send();
         }
