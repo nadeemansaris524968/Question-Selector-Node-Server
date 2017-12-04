@@ -15,8 +15,9 @@ const port = process.env.PORT;
 
 app.use(bodyParser.json());
 app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
 
@@ -49,12 +50,12 @@ app.get('/questions/:id', (req, res) => {
 });
 
 // POST/questions
-app.post('/questions', authenticate, (req, res) => {
+app.post('/questions', (req, res) => {
     var question = new Question({
         independent: req.body.independent,
         if_thens: req.body.if_thens,
-        img: req.body.img,
-        _answeredBy: req.user._id // We are able to extract user prop from req 
+        img: req.body.img
+        // _answeredBy: req.user._id // We are able to extract user prop from req 
         // because we set it using authenticate.js middleware
     });
 
@@ -66,10 +67,11 @@ app.post('/questions', authenticate, (req, res) => {
 });
 
 // PATCH/questions/:id
-app.patch('/questions/:id', authenticate, (req, res) => {
+app.patch('/questions/:id', (req, res) => {
     var id = req.params.id;
+    // console.log("Data Received from Angular app --------------------------------\n" + JSON.stringify(req.body, undefined, 2));
     var body = _.pick(req.body, ['independent', 'if_thens', 'img']);
-    body['_answeredBy'] = req.user.email;
+    body['isAnswered'] = true;
 
     if (!ObjectID.isValid(id)) {
         return res.status(404).send();
@@ -81,7 +83,7 @@ app.patch('/questions/:id', authenticate, (req, res) => {
                 "img": body.img,
                 "if_thens": body.if_thens,
                 "independent": body.independent,
-                "_answeredBy": body._answeredBy
+                "isAnswered": body.isAnswered
             }
         }, { new: true }).then((question) => {
             if (!question) {
@@ -89,7 +91,7 @@ app.patch('/questions/:id', authenticate, (req, res) => {
             }
 
             res.send(question);
-            console.log('Printing question: ' + JSON.stringify(question, undefined, 2));
+            // console.log('Printing question: ' + JSON.stringify(question, undefined, 2));
 
         }).catch((e) => {
             res.status(400).send();
@@ -97,17 +99,14 @@ app.patch('/questions/:id', authenticate, (req, res) => {
 });
 
 // DELETE/questions/:id
-app.delete('/questions/:id', authenticate, (req, res) => {
+app.delete('/questions/:id', (req, res) => {
     var id = req.params.id;
 
     if (!ObjectID.isValid(id)) {
         return res.status(404).send();
     }
 
-    Question.findOneAndRemove({
-        _id: id,
-        _answeredBy: req.user._id
-    }).then((question) => {
+    Question.findOneAndRemove({ id }).then((question) => {
         if (!question) {
             return res.status(404).send();
         }

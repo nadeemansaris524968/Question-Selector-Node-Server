@@ -4,7 +4,7 @@ var Question = mongoose.model('Question', {
     independent: [],
     if_thens: [],
     img: '',
-    _answeredBy: ''
+    isAnswered: Boolean
 });
 
 module.exports = { Question };
