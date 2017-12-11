@@ -50,12 +50,13 @@ app.get('/questions/:id', (req, res) => {
 });
 
 // POST/questions
-app.post('/questions', (req, res) => {
+app.post('/questions', authenticate, (req, res) => {
     var question = new Question({
         independent: req.body.independent,
         if_thens: req.body.if_thens,
-        img: req.body.img
-        // _answeredBy: req.user._id // We are able to extract user prop from req 
+        img: req.body.img,
+        _creator: req.user._id,
+        _answeredBy: req.user.email // We are able to extract user prop from req 
         // because we set it using authenticate.js middleware
     });
 
