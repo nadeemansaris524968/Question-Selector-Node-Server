@@ -23,7 +23,7 @@ app.use(function (req, res, next) {
 
 // GET/questions
 // Sends all the questions, no authentication required
-app.get('/questions', (req, res) => {
+app.get('/questions', authenticate, (req, res) => {
     Question.find().then((questions) => {
         res.send(questions);
     }, (e) => {
@@ -32,7 +32,7 @@ app.get('/questions', (req, res) => {
 });
 
 // GET/questions/:id
-app.get('/questions/:id', (req, res) => {
+app.get('/questions/:id', authenticate, (req, res) => {
     var id = req.params.id;
 
     if (!ObjectID.isValid(id)) {
@@ -68,11 +68,11 @@ app.post('/questions', authenticate, (req, res) => {
 });
 
 // PATCH/questions/:id
-app.patch('/questions/:id', (req, res) => {
+app.patch('/questions/:id', authenticate, (req, res) => {
     var id = req.params.id;
-    // console.log("Data Received from Angular app --------------------------------\n" + JSON.stringify(req.body, undefined, 2));
     var body = _.pick(req.body, ['independent', 'if_thens', 'img']);
     body['isAnswered'] = true;
+    body['_answeredBy'] = req.email;
 
     if (!ObjectID.isValid(id)) {
         return res.status(404).send();
@@ -84,7 +84,8 @@ app.patch('/questions/:id', (req, res) => {
                 "img": body.img,
                 "if_thens": body.if_thens,
                 "independent": body.independent,
-                "isAnswered": body.isAnswered
+                "isAnswered": body.isAnswered,
+                "_answeredBy": body._answeredBy
             }
         }, { new: true }).then((question) => {
             if (!question) {
@@ -92,8 +93,6 @@ app.patch('/questions/:id', (req, res) => {
             }
 
             res.send(question);
-            // console.log('Printing question: ' + JSON.stringify(question, undefined, 2));
-
         }).catch((e) => {
             res.status(400).send();
         });
