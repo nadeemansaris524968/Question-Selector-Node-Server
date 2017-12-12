@@ -5,6 +5,18 @@ const _ = require('lodash');
 const bcrypt = require('bcryptjs');
 
 var UserSchema = new mongoose.Schema({
+    firstName: {
+        type: String,
+        required: true,
+        trim: true,
+        minlength: 1
+    },
+    lastName: {
+        type: String,
+        required: true,
+        trim: true,
+        minlength: 1
+    },
     email: {
         type: String,
         required: true,
@@ -49,8 +61,10 @@ UserSchema.methods.generateAuthToken = function () {
     // user is model instance or doc that is about to be saved
     var user = this;
     var access = 'auth';
-    var token = jwt.sign({ _id: user._id.toHexString(), access }, process.env.JWT_SECRET).toString();
-
+    var firstName = user.firstName;
+    var lastName = user.lastName;
+    var email = user.email;
+    var token = jwt.sign({ _id: user._id.toHexString(), access, firstName, lastName, email}, process.env.JWT_SECRET).toString();
     user.tokens.push({ access, token });
 
     return user.save().then(() => {

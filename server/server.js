@@ -118,9 +118,8 @@ app.delete('/questions/:id', authenticate, (req, res) => {
 
 // POST/users
 app.post('/users', (req, res) => {
-    var body = _.pick(req.body, ['email', 'password']);
+    var body = _.pick(req.body, ['firstName', 'lastName', 'email', 'password']);
     var user = new User(body);
-
     user.save()
         .then((user) => {
             return user.generateAuthToken();
