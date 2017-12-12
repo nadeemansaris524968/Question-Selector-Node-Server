@@ -99,7 +99,7 @@ app.patch('/questions/:id', authenticate, (req, res) => {
 });
 
 // DELETE/questions/:id
-app.delete('/questions/:id', (req, res) => {
+app.delete('/questions/:id', authenticate, (req, res) => {
     var id = req.params.id;
 
     if (!ObjectID.isValid(id)) {
@@ -135,6 +135,7 @@ app.post('/users', (req, res) => {
 });
 
 // Using middleware defined in authenticate.js
+// Just a sample authentication route
 app.get('/users/me', authenticate, (req, res) => {
     res.send(req.user);
 });
