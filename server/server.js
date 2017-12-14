@@ -84,7 +84,8 @@ app.patch('/questions/:id', authenticate, (req, res) => {
                 "img": body.img,
                 "if_thens": body.if_thens,
                 "independent": body.independent,
-                "isAnswered": body.isAnswered
+                "isAnswered": body.isAnswered,
+                "_creator": new ObjectID(req.user._id)
             }
         }, { new: true }).then((question) => {
             if (!question) {
