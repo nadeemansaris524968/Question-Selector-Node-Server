@@ -56,9 +56,7 @@ app.post('/questions', authenticate, (req, res) => {
         independent: req.body.independent,
         if_thens: req.body.if_thens,
         img: req.body.img,
-        _creator: req.user._id,
-        _answeredBy: req.user.email // We are able to extract user prop from req 
-        // because we set it using authenticate.js middleware
+        _creator: req.user._id
     });
 
     question.save().then((doc) => {
@@ -73,7 +71,6 @@ app.patch('/questions/:id', authenticate, (req, res) => {
     var id = req.params.id;
     var body = _.pick(req.body, ['independent', 'if_thens', 'img']);
     body['isAnswered'] = true;
-    body['_answeredBy'] = req.email;
 
     if (!ObjectID.isValid(id)) {
         return res.status(404).send();
@@ -85,8 +82,7 @@ app.patch('/questions/:id', authenticate, (req, res) => {
                 "img": body.img,
                 "if_thens": body.if_thens,
                 "independent": body.independent,
-                "isAnswered": body.isAnswered,
-                "_answeredBy": body._answeredBy
+                "isAnswered": body.isAnswered
             }
         }, { new: true }).then((question) => {
             if (!question) {

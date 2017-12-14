@@ -11,8 +11,7 @@ var Question = mongoose.model('Question', {
     _creator: {
         type: mongoose.Schema.Types.ObjectId,
         required: false
-    },
-    _answeredBy: ''
+    }
 });
 
 module.exports = { Question };
