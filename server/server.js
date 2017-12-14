@@ -24,8 +24,10 @@ app.use(function (req, res, next) {
 
 // GET/questions
 // Sends all the questions, no authentication required
-app.get('/questions', (req, res) => {
-    Question.find().then((questions) => {
+app.get('/questions', authenticate, (req, res) => {
+    Question.find({
+        _creator: req.user._id
+    }).then((questions) => {
         res.send(questions);
     }, (e) => {
         res.status(400).send(e);
