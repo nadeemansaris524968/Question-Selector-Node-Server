@@ -114,7 +114,9 @@ UserSchema.statics.findByCredentials = function (email, password) {
     return User.findOne({ email }).then((user) => {
         // User doesn't exist
         if (!user) {
-            return Promise.reject();
+            return Promise.reject({
+                errorMessage: 'No user exists'
+            });
         }
 
         return new Promise((resolve, reject) => {
@@ -122,7 +124,9 @@ UserSchema.statics.findByCredentials = function (email, password) {
                 if (res) {
                     resolve(user);
                 } else {
-                    reject();
+                    reject({
+                        errorMessage: 'Incorrect Password'
+                    });
                 }
             });
         });
