@@ -55,12 +55,26 @@ app.get('/questions/:id', authenticate, (req, res) => {
 });
 
 // POST/questions
-app.post('/questions', authenticate, (req, res) => {
+// app.post('/questions', authenticate, (req, res) => {
+//     var question = new Question({
+//         independent: req.body.independent,
+//         if_thens: req.body.if_thens,
+//         img: req.body.img,
+//         _creator: req.user._id
+//     });
+
+//     question.save().then((doc) => {
+//         res.send(doc);
+//     }, (e) => {
+//         res.status(400).send(e);
+//     });
+// });
+
+app.post('/questions', (req, res) => {
     var question = new Question({
         independent: req.body.independent,
         if_thens: req.body.if_thens,
         img: req.body.img,
-        _creator: req.user._id
     });
 
     question.save().then((doc) => {
