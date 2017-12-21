@@ -25,6 +25,8 @@ app.use(function (req, res, next) {
 // GET/questions
 // Sends all the questions, no authentication required
 app.get('/questions', authenticate, (req, res) => {
+
+    // Only returning questions meant for current user
     Question.find({
         _creator: req.user._id
     }).then((questions) => {
@@ -120,7 +122,6 @@ app.delete('/questions/:id', authenticate, (req, res) => {
 app.post('/users', (req, res) => {
     var body = _.pick(req.body, ['firstName', 'lastName', 'email', 'password']);
     var user = new User(body);
-    console.log('User from Ng - ', JSON.stringify(user, undefined, 2));
     user.save()
         .then((user) => {
             return user.generateAuthToken();
@@ -136,9 +137,9 @@ app.post('/users', (req, res) => {
 
 // Using middleware defined in authenticate.js
 // Just a sample authentication route
-app.get('/users/me', authenticate, (req, res) => {
-    res.send(req.user);
-});
+// app.get('/users/me', authenticate, (req, res) => {
+//     res.send(req.user);
+// });
 
 // Login users
 app.post('/users/login', (req, res) => {

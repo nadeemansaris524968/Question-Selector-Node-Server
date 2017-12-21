@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-var Question = mongoose.model('Question', {
+var QuestionSchema = new mongoose.Schema({
     independent: [],
     if_thens: [],
     img: '',
@@ -13,5 +13,7 @@ var Question = mongoose.model('Question', {
         required: false
     }
 });
+
+var Question = mongoose.model('Question', QuestionSchema);
 
 module.exports = { Question };
